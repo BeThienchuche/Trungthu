@@ -145,30 +145,36 @@
 }
 
 .line {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  white-space: normal;
-  display: flex;
-  gap: 4px;
-  justify-content: center;
-  align-items: center;
-  font-family: "Mali", cursive;
-  font-size: clamp(1rem, 4vw, 2.2rem); /* <-- tự động co chữ theo màn hình */
-  color: rgb(224, 132, 12);
-  text-shadow:
-   0 0 4px rgba(240, 150, 16, 0.9),
-    0 0 12px rgba(230, 229, 227, 0.12),
-    0 2px 20px rgba(0, 0, 0, 0.6);
-  opacity: 0;
-  transition: opacity 220ms linear;
-  text-align: center;
-}
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%; /* Bắt buộc để tự động rớt dòng theo màn hình */
+      display: flex;
+      flex-wrap: wrap; /* Cho phép chữ tự động xuống dòng */
+      justify-content: center;
+      align-items: center;
+      font-family: "Mali", cursive;
+      font-size: clamp(1.2rem, 5vw, 2.2rem); /* Cân chỉnh lại tỷ lệ to/nhỏ an toàn cho mobile */
+      line-height: 1.5; /* Giãn dòng để chữ rớt xuống không bị dính vào nhau */
+      color: rgb(224, 132, 12);
+      text-shadow:
+        0 0 4px rgba(240, 150, 16, 0.9),
+        0 0 12px rgba(230, 229, 227, 0.12),
+        0 2px 20px rgba(0, 0, 0, 0.6);
+      opacity: 0;
+      transition: opacity 220ms linear;
+      text-align: center;
+    }
 
-.line.active {
-  opacity: 1;
-}
+    .word {
+      display: inline-flex;
+      margin-right: 6px; /* Khoảng cách giữa các từ, thay thế cho dấu cách mặc định */
+    }
+
+    .line.active {
+      opacity: 1;
+    }
 
 @media (max-width: 480px) {
   .text-wrapper {
@@ -535,11 +541,23 @@ function createLines(lines) {
   for (const txt of lines) {
     const line = document.createElement('div');
     line.className = 'line';
-    for (const ch of txt) {
-      const sp = document.createElement('span');
-      sp.className = 'char';
-      sp.textContent = ch;
-      line.appendChild(sp);
+    
+    // Tách nguyên câu ra thành từng từ (dựa vào dấu cách)
+    const words = txt.split(' ');
+    
+    for (const word of words) {
+      // Bọc từng từ vào 1 thẻ div riêng
+      const wordSpan = document.createElement('div');
+      wordSpan.className = 'word';
+      
+      // Tách chữ cái cho hiệu ứng animation bên trong thẻ từ đó
+      for (const ch of word) {
+        const sp = document.createElement('span');
+        sp.className = 'char';
+        sp.textContent = ch;
+        wordSpan.appendChild(sp);
+      }
+      line.appendChild(wordSpan);
     }
     wrapper.appendChild(line);
   }
